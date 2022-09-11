@@ -1,0 +1,6 @@
+{
+    "go.toolsEnvVars": {
+        "GOROOT": "C:/Users/Emmaly/AppData/Local/tinygo/goroot-164232dbdf51d5f1e2722e76d1242221c849bb8f9a1d56ba38d35f36256f1082",
+        "GOFLAGS": "-tags=cortexm,baremetal,linux,arm,nrf52833,nrf,microbit_v2,tinygo,math_big_pure_go,gc.conservative,scheduler.tasks,serial.uart"
+    }
+}
