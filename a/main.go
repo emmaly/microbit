@@ -2,38 +2,47 @@ package main
 
 import (
 	"image/color"
+	"machine"
 	"math/rand"
 	"time"
 
+	"github.com/emmaly/microbit/a/sprite"
+	"tinygo.org/x/drivers/mag3110"
 	"tinygo.org/x/drivers/microbitmatrix"
 )
 
-var display microbitmatrix.Device
+var framerate = 800 * time.Millisecond
 
 func main() {
-	display := microbitmatrix.New()
-	display.Configure(microbitmatrix.Config{})
-	display.ClearDisplay()
+	machine.I2C0.Configure(machine.I2CConfig{})
 
-	xs := []int16{0, 1, 2, 3, 4}
-	ys := []int16{0, 1, 2, 3, 4}
+	// display config
+	var display = microbitmatrix.New()
+	display.Configure(microbitmatrix.Config{Rotation: 1})
+	sprite.Draw(&display, sprite.SPRITE_O)
 
-	off := color.RGBA{0, 0, 0, 0}
-	on := color.RGBA{255, 255, 255, 255}
+	// mag3110 config
+	var mag = mag3110.New(machine.I2C0)
+	mag.Configure()
 
 	last := time.Now()
-
 	for {
-		if time.Since(last) > 100*time.Millisecond {
+		if time.Since(last) >= framerate {
 			last = time.Now()
-			x := xs[rand.Intn(len(xs))]
-			y := ys[rand.Intn(len(ys))]
-			if pixelIsOn := display.GetPixel(x, y); pixelIsOn == true {
-				display.SetPixel(x, y, off)
-			} else {
-				display.SetPixel(x, y, on)
-			}
+			displayHeight, displayWidth := display.Size()
+			x := rand.Intn(int(displayHeight))
+			y := rand.Intn(int(displayWidth))
+			togglePixel(&display, x, y)
 		}
+
 		display.Display()
+	}
+}
+
+func togglePixel(display *microbitmatrix.Device, x int, y int) {
+	if !display.GetPixel(int16(x), int16(y)) {
+		display.SetPixel(int16(x), int16(y), color.RGBA{255, 255, 255, 255})
+	} else {
+		display.SetPixel(int16(x), int16(y), color.RGBA{0, 0, 0, 0})
 	}
 }
